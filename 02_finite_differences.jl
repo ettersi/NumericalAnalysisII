@@ -49,7 +49,5 @@ function convergence()
     # Plot
     clf()
     loglog(n, error)
-    loglog(n, @.( π^6/24 * (n+1)^-2 ), "k--")
-    # `@.(expression)` adds a `.` to every function call in `expression`.
-    # Example: `@.(f(g(x)) -> f.(g.(x))`
+    loglog(n, n.^-2, "k--")
 end
