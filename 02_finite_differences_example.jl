@@ -2,9 +2,11 @@ using PyPlot
 using LinearAlgebra
 
 function laplacian(n,a)
-    x = [(i+1/2)/(n+1) for i = 0:n]
+    x = LinRange(0,1,2n+3)[2:2:end-1]
+    # Equivalently: 
+    # x = ((1:n+1) .- 1/2) ./ (n+1) 
     ax = a.(x)
-    return (n+1)^2*Tridiagonal(
+    return (n+1)^2 * Tridiagonal(
         ax[2:end-1],
         -ax[1:end-1] .- ax[2:end],
         ax[2:end-1]
@@ -12,8 +14,8 @@ function laplacian(n,a)
 end
 
 function solve_poisson(a,f, n)
-    x = LinRange(0,1,n+2)[2:end-1]
     Δ = laplacian(n,a)
+    x = LinRange(0,1,n+2)[2:end-1]
     b = f.(x)
     return x, -Δ\b
 end
