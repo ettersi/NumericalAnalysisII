@@ -10,15 +10,16 @@ laplacian_1d(n) = (n+1)^2*Tridiagonal(
 
 function laplacian_2d(n)
     Δ = sparse(laplacian_1d(n))
-    Id = sparse(I,n,n)
+    Id = sparse(I, (n,n))
     return kron(Δ,Id) + kron(Id,Δ)
 end
 
 function solve_poisson(f, n)
-    x = LinRange(0,1,n+2)[2:end-1]
     Δ = laplacian_2d(n)
+    x = LinRange(0,1,n+2)[2:end-1]
     b = vec(f.(x,x'))
-    return reshape(-Δ\b, (n,n))
+    u = -Δ\b
+    return reshape(u, (n,n))
 end
 
 function example()
