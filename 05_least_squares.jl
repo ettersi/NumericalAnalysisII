@@ -2,9 +2,9 @@ using LinearAlgebra
 using Random
 using PyPlot
 
-function generate_data(m)
-    a = rand(m)
-    b = 0.2 .+ 0.6.*a .+ 0.1*randn(m)
+function generate_data(N)
+    a = rand(N)
+    b = 0.2 .+ 0.6.*a .+ 0.1*randn(N)
     return a,b
 end
 
