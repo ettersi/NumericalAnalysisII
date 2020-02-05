@@ -2,7 +2,7 @@ using PyPlot
 using LinearAlgebra
 using IterativeSolvers
 
-function example()
+function gmres_convergence()
     N = 100
     κ = 10
 
@@ -15,7 +15,7 @@ function example()
     ]
         _,log = gmres(A,ones(N); log=true, restart = N)
         semilogy(
-            1:length(log[:resnorm]), log[:resnorm],
+            1:log.iters, log[:resnorm],
             line_style,
             label=label
         )
@@ -25,4 +25,41 @@ function example()
     xlabel(L"k")
     ylabel(L"\|Ax_k - b\|_2")
     legend(loc="best")
+    display(gcf())
+end
+
+function restarted_gmres_good()
+    N = 100
+    κ = 10
+
+    clf()
+    for k = (N,5)
+        A = Diagonal(LinRange(1,κ,N))
+        _,log = gmres(A,ones(N); log=true, restart = k)
+        semilogy(
+            1:log.iters, log[:resnorm],
+            label="restart = $k"
+        )
+    end
+    xlabel(L"k")
+    ylabel(L"\|Ax_k - b\|_2")
+    legend(loc="best")
+    display(gcf())
+end
+
+function restarted_gmres_bad()
+    clf()
+    for k = (10,2,1)
+        λ = 200 .+ (1:5)
+        A = Diagonal([λ; .-λ])
+        _,log = gmres(A,ones(10); log=true, restart = k)
+        semilogy(
+            1:log.iters, log[:resnorm],
+            label="restart = $k"
+        )
+    end
+    xlabel(L"k")
+    ylabel(L"\|Ax_k - b\|_2")
+    legend(loc="best")
+    display(gcf())
 end
