@@ -74,6 +74,9 @@ function test_bracketing_methods()
     @test_bracketing_method(bisection, "x->x", -1.0, 0.0)   # Fixed by line C
 
     @test_bracketing_method(false_position, "x->sin(x)", 3.0, 4.0)   # Fixed by lines E and F
+    # The following test is in principle fixed by lines E and F, but the fix is
+    # not practical.
+    @test_bracketing_method(false_position, "x->ifelse(x<=0,-1.0,floatmin())", -1.0, 1.0)
 end
 
 
