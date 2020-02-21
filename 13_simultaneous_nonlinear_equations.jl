@@ -1,10 +1,5 @@
 using PyPlot
-
-laplacian(n) = (n+1)^2*Tridiagonal(
-    fill( 1.0,n-1), # subdiagonal
-    fill(-2.0,n),   # diagonal
-    fill( 1.0,n-1)  # superdiagonal
-)
+using LinearAlgebra
 
 function newton(f,df, x, kmax)
     for k = 1:kmax
