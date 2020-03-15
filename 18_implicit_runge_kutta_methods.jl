@@ -11,15 +11,17 @@ function explicit_midpoint_step(f,y0,t)
 end
 
 function implicit_euler_step(f,y0,t)
-    return find_zero(y->y0 + f(y)*t - y, (0,1))
-    # `find_zero(f,(a,b))` determines the root of `f` in the interval `(a,b)`.
+    return find_zero(y->y0 + f(y)*t - y, (0,1), Bisection())
+    # `find_zero(f,(a,b), Bisection())` determines the root of `f` in the
+    # bracketing interval `(a,b)` using the bisection method.
     # The choice `(a,b) = (0,1)` is problem-specific and will not work in general.
 end
 
 function implicit_midpoint_step(f,y0,t)
     ỹ = find_zero(y->y0 + f(y)*t/2 - y, (-1,1))
-    # `find_zero(f,(a,b))` determines the root of `f` in the interval `(a,b)`.
-    # The choice `(a,b) = (-1,1)` is problem-specific and will not work in general.
+    # `find_zero(f,(a,b), Bisection())` determines the root of `f` in the
+    # bracketing interval `(a,b)` using the bisection method.
+    # The choice `(a,b) = (0,1)` is problem-specific and will not work in general.
     return y0 + f(ỹ)*t
 end
 
@@ -77,5 +79,61 @@ function harmonic_oscillator_divergence()
     xlabel(L"t")
     ylabel(L"|\tilde y(t)|")
     legend(loc="best")
+    display(gcf())
+end
+
+using DifferentialEquations
+
+function plot_stepsize()
+    # Model parameters
+    λ = 1.0
+    f = (y,p,t)->-λ*y  # `p` are model parameter, `t` is the time
+    y0 = 1.0
+    T = 100.0
+
+    # Numerical parameters
+    tol = 1e-3
+    step = ImplicitEuler()
+    # See https://docs.juliadiffeq.org/stable/solvers/ode_solve/#Full-List-of-Methods-1
+    # for a list of available stepping algorithms
+
+    # Solve
+    problem = ODEProblem(f, y0, (0.0,T))
+    solution = solve(problem, step, abstol=tol, reltol=0.0)
+    t = solution.t
+
+    # Plot
+    clf()
+    semilogy(t[2:end], diff(t), "o-", ms=3)
+    display(gcf())
+end
+
+function convergence()
+    λ = -1.0
+    f = y->λ*y
+    y0 = 1.0
+    T = 10
+    y = t->exp(λ*t)
+
+    clf()
+    m = round.(Int, 10.0.^LinRange(0,4,100))
+    for (name,step) in (
+        ("explicit Euler", explicit_euler_step),
+        ("explicit midpoint", explicit_midpoint_step),
+        ("implicit Euler", implicit_euler_step),
+        ("implicit midpoint", implicit_midpoint_step),
+    )
+        error = [begin
+            ỹ = integrate(f,y0,T,m, step)
+            abs(y(T) - ỹ[end])
+        end for m in m]
+        loglog(m, error, label=name)
+    end
+    nn = (1e2,1e4)
+    # loglog(nn, 1e-2.*inv.(nn), "k--")
+    # loglog(nn, 4e-2.*inv.(nn).^2, "k-.")
+    legend(loc="best")
+    xlabel(L"n")
+    ylabel(L"|\tilde y(T) - y(T)|")
     display(gcf())
 end
