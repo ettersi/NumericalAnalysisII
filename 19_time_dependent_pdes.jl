@@ -22,7 +22,7 @@ function example()
     # Simulation parameters
     n = 100
     step = explicit_euler
-    dt = 0.1/(n+1)
+    dt = 0.1/(n+1)^2
 
     A = laplacian(n)
     x = LinRange(0,1,n+2)

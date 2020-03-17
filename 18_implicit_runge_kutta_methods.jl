@@ -11,14 +11,14 @@ function explicit_midpoint_step(f,y0,t)
 end
 
 function implicit_euler_step(f,y0,t)
-    return find_zero(y->y0 + f(y)*t - y, (0,1), Bisection())
+    return find_zero(ỹ->y0 + f(ỹ)*t - ỹ, (0,1), Bisection())
     # `find_zero(f,(a,b), Bisection())` determines the root of `f` in the
     # bracketing interval `(a,b)` using the bisection method.
     # The choice `(a,b) = (0,1)` is problem-specific and will not work in general.
 end
 
 function implicit_midpoint_step(f,y0,t)
-    ỹ = find_zero(y->y0 + f(y)*t/2 - y, (-1,1))
+    ỹ = find_zero(y->y0 + f(y)*t/2 - y, (-1,1), Bisection())
     # `find_zero(f,(a,b), Bisection())` determines the root of `f` in the
     # bracketing interval `(a,b)` using the bisection method.
     # The choice `(a,b) = (0,1)` is problem-specific and will not work in general.
@@ -130,8 +130,8 @@ function convergence()
         loglog(m, error, label=name)
     end
     nn = (1e2,1e4)
-    # loglog(nn, 1e-2.*inv.(nn), "k--")
-    # loglog(nn, 4e-2.*inv.(nn).^2, "k-.")
+    loglog(nn, 1e-2.*inv.(nn), "k--")
+    loglog(nn, 4e-2.*inv.(nn).^2, "k-.")
     legend(loc="best")
     xlabel(L"n")
     ylabel(L"|\tilde y(T) - y(T)|")
