@@ -116,6 +116,16 @@ end
 
 
 function example()
+    # I could not figure out how to make the plot show up in Juno, so you will
+    # have to run this function from the Julia REPL:
+    # Double-click the Julia executable that you downloaded back when you set up
+    # Julia / Atom / Juno for the first time. Then, `cd("[path]")` to where  you
+    # stored this file, and run
+    # `include("19_time_dependent_pdes.jl"); example()`
+    # If all goes well, a new window should appear with the animation.
+    # Feel free to contact me (preferrably in person, not via email) if you have
+    # issues getting this to work.
+
     n = 3
     L = 5*n
     E = 2n^2 * 0.0
