@@ -14,7 +14,7 @@ function trajectory(v0,D,g)
             return [v1,v2, -D*v*v1, -D*v*v2-g]
         end,
         [0.0,0.0,v0[1],v0[2]],  # Initial conditions
-        (0.0,Inf)               # Time interval
+        (0.0,1e3)               # Time interval
     )
 
     callback = ContinuousCallback(

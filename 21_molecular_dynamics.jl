@@ -128,7 +128,8 @@ function example()
 
     n = 3
     L = 5*n
-    E = 2n^2 * 0.0
+    E = 2n^2 * 0.0   # Energy of the system
+                     # Increase this parameter to go from solid to liquid to gas
     dt = 0.01
     dt_per_frame = 0.1
     frames_per_second = 20
@@ -145,7 +146,7 @@ function example()
     )
 
     clf()
-    p = plot_positions(x,L)
+    p = plot_positions(integrator.u.x[1],L)
     FuncAnimation(
         gcf(),
         i->begin
