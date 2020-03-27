@@ -12,17 +12,15 @@ function main()
     solve_ode = d0 -> begin
         problem = ODEProblem(
             (y,p,x) -> begin
-                u,du,up,dup = y
+                local u,du,up,dup = y
                 # du = du/dt
                 # up = du/d(d0)
                 # dup = d^2u/(dt*d(d0))
 
-                return [
-                    # TODO: define the derivatives of the above variables
-                ]
+                return [du, -f(x) + u^2, dup, 2u*up]
             end,
-            [#= TODO: specify the initial conditions =#],
-            (#= TODO: specify the domain of the solution =#)
+            [0.0,d0,0.0,1.0], # Initial conditions
+            (0.0,1.0)           # Time span
         )
         return solve(problem, Midpoint())
     end
