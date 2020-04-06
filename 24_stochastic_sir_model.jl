@@ -1,12 +1,14 @@
 using PyPlot
 using DifferentialEquations
 using Random
+using Statistics
+using Printf
 
 function sir_ode(N,I0,k,T)
     problem = ODEProblem(
         (y,p,t) -> begin
             S,I = y
-            [
+            return [
                 -k*S*I/N,
                 +k*S*I/N - I
             ]
@@ -98,6 +100,48 @@ function bernoulli_sampling()
     u = rand(1_000_000)
     x = Int.(u .< p)
 
-    p̃ = sum(x)/length(x)
+    p̃ = mean(x)
     println("Empirical p: ", p̃)
+end
+
+
+function Rinf_distribution()
+    N = 100
+    I0 = round(Int, 0.01*N)
+    k = 2
+    n_samples = 100_000
+
+    Rinf = zeros(Int,n_samples)
+    for i = 1:n_samples
+        t,S,I = sir_gillespie(N,I0,k,Inf)
+        Rinf[i] = N-S[end]
+    end
+
+    clf()
+    hist(Rinf, 0:N, density = true)
+    xlabel(L"R(\infty)")
+    ylabel(L"P(R(\infty))")
+    display(gcf())
+end
+
+function p_epidemic()
+    N = 100
+    I0 = round(Int, 0.01*N)
+    k = 2
+    Rthres = 40
+    n_samples = 100_000
+
+    Rinf = zeros(n_samples)
+    for i = 1:n_samples
+        t,S,I = sir_gillespie(N,I0,k,Inf)
+        Rinf[i] = N-S[end]
+    end
+
+    X = Rinf .>= Rthres
+    E_X = mean(X)
+    var_X = mean((X .- E_X).^2)
+    error = sqrt(var_X / n_samples)
+
+    println("        P(Rinf > Rthres): ", E_X)
+    println("Estimated absolute error: ", error)
 end
