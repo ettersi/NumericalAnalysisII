@@ -29,7 +29,7 @@ function plot_samples()
         )
         x = zeros(2,n_samples)
         for i = 1:n_samples
-            x[:,i] = randdisk_transformation()
+            x[:,i] = randdisk()
         end
         plot(x[1,:], x[2,:], "o", ms=3, label=label)
     end
