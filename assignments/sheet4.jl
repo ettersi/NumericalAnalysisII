@@ -81,8 +81,8 @@ function plot_histogram(estimator,f,N,Nhist; label="")
 
     # Compare the histogram against the normal distribution predicted by the
     # central limit theorem
-    x = E_E .+ Var_E .* LinRange(-3,3,1000)
-    plot(x, normal_pdf.(E_E, Var_E, x), "k")
+    x = E_E .+ sqrt(Var_E) .* LinRange(-3,3,1000)
+    plot(x, normal_pdf.(E_E, sqrt(Var_E), x), "k")
 end
 
 function sin_integral()
