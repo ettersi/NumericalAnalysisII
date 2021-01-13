@@ -174,7 +174,9 @@ function exponential_scaling()
     display(gcf())
 end
 
-function rounding_errors()
+
+
+function machine_precision()
     # Compute Euler's number using the series expansion of `exp(x)`.
     exp_sum = n -> sum(1/factorial(big(k)) for k = 0:n)
 
