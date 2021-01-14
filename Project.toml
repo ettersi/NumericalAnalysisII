@@ -1,0 +1,4 @@
+[deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
+Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
