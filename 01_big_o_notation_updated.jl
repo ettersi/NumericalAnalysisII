@@ -183,7 +183,7 @@ function machine_precision()
     # Plot the convergence
     n = 1:100
     clf()
-    semilogy(n[[1,end]], eps().*[1,1], "k--", label=L"\mathrm{eps}()}")
+    semilogy(n[[1,end]], eps().*[1,1], "k--", label=L"\mathrm{eps}()")
     semilogy(n, abs.(log(2) .- log2_via_taylor.(n)), "-", label=L"\mathrm{error}(n)")
     xlabel(L"n")
     legend()

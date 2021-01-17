@@ -178,13 +178,13 @@ end
 
 function machine_precision()
     # Compute Euler's number using the series expansion of `exp(x)`.
-    exp_sum = n -> sum(1/factorial(big(k)) for k = 0:n)
+    exp_sum = n -> Float64(sum(1/factorial(big(k)) for k = 0:n))
 
     # Plot the convergence
     n = 1:30
     clf()
     semilogy(n, abs.(exp(1) .- exp_sum.(n)), "o-", label=L"\mathrm{error}(n)")
-    semilogy(n[[1,end]], eps().*[1,1], "k--", label=L"\mathrm{eps}()}")
+    semilogy(n[[1,end]], eps().*[1,1], "k--", label=L"\mathrm{eps}()")
     xlabel(L"n")
     legend()
     display(gcf())
