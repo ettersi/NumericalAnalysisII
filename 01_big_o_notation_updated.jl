@@ -132,7 +132,7 @@ function algebraic_scaling()
     # In Python, the equivalent syntax is `lambda x: ...`.
 
     clf()
-    if false
+    if true
         # Bad: Plot `f(x)` using linear axes.
         # Linear axes do not allow us to reliably distinguish between, say,
         # `O(x^(1/2))`, `O(x^(1/3))` or even `O(log(x))`.
@@ -155,7 +155,7 @@ function exponential_scaling()
     f = x -> (2 + sin(x))*exp(x)
 
     clf()
-    if false
+    if true
         # Bad: Plot `f(x)` using linear axes.
         # Linear axes do not allow us to reliably distinguish between, say,
         # `O(x^2)` or `O(exp(x))`.
