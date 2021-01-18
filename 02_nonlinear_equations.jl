@@ -65,8 +65,16 @@ Compute `m::Float64` such that `[a,m]` and `[m,b]` contain the same number of
 """
 function bisect(a::Float64,b::Float64)
     a,b = to_int.((a,b))
-    return to_float((a>>1) + (b>>1))
+    m = (a&b) + xor(a,b) >> 1 # Compute `(a+b)÷2` without overflow
+    return to_float(m)
 end
+
+"""
+    to_int(float) -> int
+
+Bijective, monotonous map from `[-Inf,Inf]` to `{-a,...,a}` for some `a > 0`.
+Effectively an enumeration of all non-`NaN` `Float64`.
+"""
 function to_int(float::Float64)
     int = reinterpret(Int64,float)
     if signbit(float)
@@ -75,6 +83,11 @@ function to_int(float::Float64)
     return int
 end
 
+"""
+    to_float(int)
+
+Inverse of `to_int()`.
+"""
 function to_float(int::Int64)
     if signbit(int)
         int = xor(int, 2^63-1)
@@ -160,9 +173,33 @@ end
 
 
 
+using Printf
+
+function newton_termination()
+    # Compute `sqrt(2) = root(x->x^2-2)` using Newton's method and print the
+    # error in each iteration.
+    # We observe that after six iterations, Newton's method simply jumps back
+    # and forth between two values.
+
+    f = x -> x^2 - 2
+    df = x -> 2x
+    x = 2.0
+    for k = 1:15
+        @printf("error(k = %2d) = % .2e\n", k, (x - sqrt(big(2))))
+        x -= f(x) / df(x)
+    end
+end
+
+
+
 using Roots
 
 function roots_examples()
-    @show find_zeros(sin, (3.0,4.0), Roots.Bisection())
-    @show find_zeros((sin,cos), 3.0, Roots.Newton())
+    @show find_zero(sin, (3.0,4.0), Roots.Bisection())
+    @show find_zero((sin,cos), 3.0, Roots.Newton())
+    println()
+    # @show find_zero(sin, (3.0,4.0), Roots.Bisection(), xatol=0.1)
+    # @show find_zero((sin,cos), 4.0, Roots.Newton(), xatol=0.1, atol=1e-3)
+    # ^ `atol = 1e-3` is required due to some quirks in how `find_zero()`
+    # determines convergence.
 end
