@@ -40,7 +40,8 @@ function convergence_1d()
     # Compute errors
     n = 2 .^ (1:15)
     error = [begin
-        x,ũ = solve_poisson_1d(f,n)
+        x = LinRange(0,1,n+2)[2:end-1]
+        ũ = solve_poisson_1d(f.(x))
         norm(ũ .- u.(x), 2)/sqrt(n+1)
     end for n in n]
 
@@ -58,6 +59,7 @@ end
 using SparseArrays
 
 function laplacian_2d(n)
+    # Ignore the `sparse()` function for now
     Δ = sparse(laplacian_1d(n))
     Id = sparse(I,n,n)
     return kron(Id,Δ) + kron(Δ,Id)
@@ -67,8 +69,7 @@ function solve_poisson_2d(f)
     @assert size(f,1) == size(f,2)
     n = size(f,1)
     Δ = laplacian_2d(n)
-    b = vec(f)
-    return x,reshape(-Δ\b, (n,n))
+    return reshape(-Δ\vec(f), (n,n))
 end
 
 function example_2d()
@@ -91,7 +92,8 @@ function convergence_2d()
     # Compute errors
     n = 2 .^ (1:9)
     error = [begin
-        x,ũ = solve_poisson_2d(f,n)
+        x = LinRange(0,1,n+2)[2:end-1]
+        ũ = solve_poisson_2d(f.(x,x'))
         norm(ũ .- u.(x,x'), 2)/(n+1)
     end for n in n]
 
@@ -107,16 +109,17 @@ end
 
 
 function laplacian_3d(n)
+    # Ignore the `sparse()` function for now
     Δ = sparse(laplacian_1d(n))
     Id = sparse(I,n,n)
     return kron(Id,Id,Δ) + kron(Id,Δ,Id) + kron(Δ,Id,Id)
 end
 
-function solve_poisson_3d(f, n)
-    x = LinRange(0,1,n+2)[2:end-1]
+function solve_poisson_3d(f)
+    @assert size(f,1) == size(f,2) == size(f,3)
+    n = size(f,1)
     Δ = laplacian_3d(n)
-    b = vec(f.(x,x',reshape(x,(1,1,n))))
-    return x,reshape(-Δ\b, (n,n,n))
+    return reshape(-Δ\vec(f), (n,n,n))
 end
 
 function convergence_3d()
@@ -127,14 +130,15 @@ function convergence_3d()
     # Compute errors
     n = 2 .^ (1:5)
     error = [begin
-        x,ũ = solve_poisson_3d(f,n)
+        x = LinRange(0,1,n+2)[2:end-1]
+        ũ = solve_poisson_3d(f.(x,x',reshape(x,(1,1,n))))
         norm(ũ .- u.(x,x',reshape(x,(1,1,n))), 2)/(n+1)^(3/2)
     end for n in n]
 
     # Plot
     clf()
     loglog(n, error, label=L"\|u - u_n\|_{2,n}")
-    loglog(n, n.^-2, "k--", label=L"O(n^{-2})")
+    loglog(n, 5e-1*n.^-2, "k--", label=L"O(n^{-2})")
     xlabel(L"n")
     legend(frameon=false)
     display(gcf())
