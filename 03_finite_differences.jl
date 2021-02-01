@@ -59,7 +59,7 @@ end
 using SparseArrays
 
 function laplacian_2d(n)
-    # Ignore the `sparse()` function for now
+    # Ignore the below calls to `sparse()` for now
     Δ = sparse(laplacian_1d(n))
     Id = sparse(I,n,n)
     return kron(Id,Δ) + kron(Δ,Id)
@@ -73,7 +73,7 @@ function solve_poisson_2d(f)
 end
 
 function example_2d()
-    n = 100
+    n = 300
     x = LinRange(0,1,n+2)[2:end-1]
     f = (x1,x2)->x1*x2
     u = solve_poisson_2d(f.(x,x'))
