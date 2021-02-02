@@ -61,7 +61,7 @@ using SparseArrays
 function laplacian_2d(n)
     # Ignore the below calls to `sparse()` for now
     Δ = sparse(laplacian_1d(n))
-    Id = sparse(I,n,n)
+    Id = sparse(I,n,n)     # n x n identity matrix
     return kron(Id,Δ) + kron(Δ,Id)
 end
 
