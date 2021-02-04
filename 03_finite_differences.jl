@@ -1,11 +1,14 @@
 using PyPlot
 using LinearAlgebra
+using SparseArrays
 
 function laplacian_1d(n)
-    return (n+1)^2 * Tridiagonal(
-        fill( 1.0,n-1), # subdiagonal
-        fill(-2.0,n),   # diagonal
-        fill( 1.0,n-1)  # superdiagonal
+    # Use `Matrix(laplacian_1d(n))` to print the output of this function in a
+    # readable form
+    return (n+1)^2 * spdiagm(
+        -1 => fill( 1.0,n-1), # subdiagonal
+         0 => fill(-2.0,n),   # diagonal
+         1 => fill( 1.0,n-1)  # superdiagonal
     )
 end
 
@@ -56,11 +59,8 @@ end
 
 
 
-using SparseArrays
-
 function laplacian_2d(n)
-    # Ignore the below calls to `sparse()` for now
-    Δ = sparse(laplacian_1d(n))
+    Δ = laplacian_1d(n)
     Id = sparse(I,n,n)     # n x n identity matrix
     return kron(Id,Δ) + kron(Δ,Id)
 end
@@ -73,7 +73,7 @@ function solve_poisson_2d(f)
 end
 
 function example_2d()
-    n = 300
+    n = 100
     x = LinRange(0,1,n+2)[2:end-1]
     f = (x1,x2)->x1*x2
     u = solve_poisson_2d(f.(x,x'))
@@ -109,9 +109,8 @@ end
 
 
 function laplacian_3d(n)
-    # Ignore the `sparse()` function for now
-    Δ = sparse(laplacian_1d(n))
-    Id = sparse(I,n,n)
+    Δ = laplacian_1d(n)
+    Id = sparse(I,n,n)    # n x n identity matrix
     return kron(Id,Id,Δ) + kron(Id,Δ,Id) + kron(Δ,Id,Id)
 end
 
