@@ -63,7 +63,7 @@ end
 
 function permutation()
     p = [4,2,1,3]
-    q = [3,2,1,4]
+    q = [3,2,4,1]
     @show p[q]
 end
 
@@ -91,8 +91,6 @@ function check_fillin()
             L,U = lu(A[p,q], Val(false))
             n_fill = sum((L+U) .!= 0) - sum(A .!= 0)
             if n_fill != 2
-                display(A[p,q])
-                display(L+U)
                 error("Permutations p = ", p, " and q = ", q, " lead to ", n_fill, " fill-in entries")
             end
         end
