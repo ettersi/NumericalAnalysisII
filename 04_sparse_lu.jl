@@ -155,12 +155,15 @@ Note that `n` must be of the form `n = 2^k - 1`.
 function runtimes(n = 127)
     Δ = -laplacian_2d(n)
 
-    t = @elapsed( cholesky(Δ; perm = 1:n^2) ) # cholesky == lu for symmetric matrices
+    t = @elapsed( ldlt(Δ; perm = 1:n^2) )
     @printf("         Original: %5.3f seconds\n", t)
 
     p = matrix_to_vector_indices(n,nested_dissection(n))
-    t = @elapsed( cholesky(Δ; perm = p) )
+    t = @elapsed( ldlt(Δ; perm = p) )
     @printf("Nested dissection: %5.3f seconds\n", t)
+
+    t = @elapsed( ldlt(Δ) )
+    @printf("          Default: %5.3f seconds\n", t)
 end
 
 """
