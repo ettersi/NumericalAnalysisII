@@ -70,10 +70,10 @@ function convergence_subtleties()
     semilogy(nn, 2e-1.*r.^nn, "C1--", label=L"O(\rho(2)^n)")
 
     _,hist = gmres(A2,b1, abstol=1e-6, restart=n, log=true)
-    semilogy([norm(b1); hist[:resnorm]], "C2", label=L"A_2 x = b1")
+    semilogy([norm(b1); hist[:resnorm]], "C2", label=L"A_2 x = b_1")
 
     ylim(clamp.(ylim(), 1e-7,Inf))
-    xlabel(L"n")
+    xlabel("# iterations")
     ylabel("GMRES residual")
     legend()
     display(gcf())
@@ -107,8 +107,8 @@ function restarted_gmres_good()
             ms = 4
         )
     end
-    xlabel(L"k")
-    ylabel(L"\|Ax_k - b\|_2")
+    xlabel("# iterations")
+    ylabel("GMRES residual")
     legend(loc="best")
     display(gcf())
 end
@@ -139,8 +139,8 @@ function restarted_gmres_bad()
             ms = 4
         )
     end
-    xlabel(L"k")
-    ylabel(L"\|Ax_k - b\|_2")
+    xlabel("# iterations")
+    ylabel("GMRES residual")
     legend(loc="best")
     display(gcf())
 end
@@ -159,11 +159,34 @@ function gmres_vs_minres()
         ("GMRES", gmres(A,b, log=true, restart=length(b))[2]),
         ("MinRes", minres(A,b, log=true)[2]),
     )
-        semilogy(log[:resnorm], "-o", ms=2, label=label)
+        semilogy(1:log.iters, log[:resnorm], "-o", ms=2, label=label)
     end
-    xlabel(L"m")
-    ylabel(L"\|A \, p(A) \, b - b\|_2")
+    xlabel("# iterations")
+    ylabel("Residual")
     legend(frameon=false)
+    display(gcf())
+end
+
+function finite_termination()
+    n = 50
+    Random.seed!(42)
+    A = rand(n,n)
+    A = A+A'
+    b = rand(n)
+
+    clf()
+    for (label, log) = (
+        ("GMRES", gmres(A,b, log=true, maxiter=2n, restart=2n)[2]),
+        ("MinRes", minres(A,b, log=true, maxiter=2n)[2]),
+    )
+        semilogy(1:log.iters, log[:resnorm], "-o", ms=2, label=label)
+        if label == "MinRes"
+            semilogy([n], [log[:resnorm][n]], "C3o", ms=5, label="Should be zero")
+        end
+    end
+    xlabel("# iterations")
+    ylabel("Residual")
+    legend(loc="lower left")
     display(gcf())
 end
 
@@ -197,10 +220,10 @@ function cg_poisson_1d()
         A = -laplacian_1d(n)
         b = rand(n)
         r = cg(A,b, log = true, reltol = eps())[2][:resnorm]
-        semilogy(0:length(r)-1, r, label=latexstring("n = $n"))
+        semilogy(1:length(r), r, label=latexstring("n = $n"))
     end
-    xlabel(L"n")
-    ylabel("CG residual norm")
+    xlabel("# iterations")
+    ylabel("CG residual")
     legend()
     display(gcf())
 end
@@ -212,10 +235,10 @@ function cg_poisson_2d()
         A = -laplacian_2d(n)
         b = rand(n^2)
         r = cg(A,b, log = true, reltol = eps())[2][:resnorm]
-        semilogy(0:length(r)-1, r, label=latexstring("n = $n"))
+        semilogy(1:length(r), r, label=latexstring("n = $n"))
     end
-    xlabel(L"n")
-    ylabel("CG residual norm")
+    xlabel("# iterations")
+    ylabel("CG residual")
     legend()
     display(gcf())
 end
@@ -228,10 +251,10 @@ function cg_poisson_3d()
         b = rand(n^3)
         r = cg(A,b, log = true, reltol = eps())[2][:resnorm]
         κ = 4*(n+1)^2/π^2
-        semilogy(0:length(r)-1, r, label=latexstring("n = $n"))
+        semilogy(1:length(r), r, label=latexstring("n = $n"))
     end
-    xlabel(L"n")
-    ylabel("CG residual norm")
+    xlabel("# iterations")
+    ylabel("CG residual")
     legend()
     display(gcf())
 end
