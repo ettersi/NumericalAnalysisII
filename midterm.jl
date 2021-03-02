@@ -1,6 +1,7 @@
 using PyPlot
 using LinearAlgebra
 using SparseArrays
+using IterativeSolvers
 
 function laplacian(D)
     n = length(D)
