@@ -53,31 +53,31 @@ function example()
 end
 
 function convergence()
-    f = y->y^2
+    f = y -> -y
     y0 = 1.0
     T = 0.5
-    y = t-> y0/(1-y0*t)
+    y = t -> exp(-t)
 
     clf()
-    n = round.(Int, 10.0.^LinRange(1,3,30))
-    for (i,(name,step,p)) in enumerate((
-        ("Euler", euler_step,1),
-        # ("trapezoidal", trapezoidal_step,2),
-        # ("RK4", rk4_step,4),
+    for (i,(name,step,p,c)) in enumerate((
+        ("Euler", euler_step, 1, 3e-1),
+        # ("trapezoidal", trapezoidal_step, 2, 2e-1),
+        # ("RK4", rk4_step, 4, 3e-1),
         # ("implicit Euler", implicit_euler_step,1),
         # ("implicit trapezoidal", implicit_trapezoidal_step,2),
     ))
+        n = round.(Int, 10.0.^LinRange(0.0,log10(1e3/p),30))
         error = [begin
             ỹ = propagate(f,y0,T,n, step)
-            abs(y(T) - ỹ[end])
+            abs(y(T) - ỹ[end]) / abs(y(T))
         end for n in n]
-        loglog(n, error, label=name)
-        nn = (1e1,1e3)
-        loglog(nn, inv.(nn).^p, "C$(i-1)--", label=latexstring("O(n^{-$p})"))
+        loglog(p.*n, error, label=name)
+        nn = (4e1,1e3)
+        loglog(nn, c.*inv.(nn).^p, "C$(i-1)--", label=latexstring("O(n^{-$p})"))
     end
     legend(frameon=false)
-    xlabel(L"n")
-    ylabel(L"|\tilde y(T) - y(T)|")
+    xlabel("# function evaluations")
+    ylabel("Error at final time")
     display(gcf())
 end
 
