@@ -63,8 +63,6 @@ function convergence()
         ("Euler", euler_step, 1, 3e-1),
         # ("trapezoidal", trapezoidal_step, 2, 2e-1),
         # ("RK4", rk4_step, 4, 3e-1),
-        # ("implicit Euler", implicit_euler_step,1),
-        # ("implicit trapezoidal", implicit_trapezoidal_step,2),
     ))
         n = round.(Int, 10.0.^LinRange(0.0,log10(1e3/p),30))
         error = [begin
@@ -121,38 +119,52 @@ function embedded_ET_step(f,y0,t)
     f2 = t*f(y_euler)
     y_trapezoidal = y0 + (f1+f2)/2
     return y_euler, y_trapezoidal
-    # Use `norm(y_euler - y_trapezoidal)` as an approximation to the local error.
 end
 
 function propagate_adaptively(f,y0,T,τ,step,p)
-    # p = order of consistency of step()[1]
+
+    # Initialise storage for the trajectory
     t = Vector{Float64}()
     y = Vector{typeof(y0)}()
     push!(t, 0.0)
     push!(y, y0)
 
-    n_rejected = 0
+    # Initial trial step size
     Δt = T
+
+    # Counts how often we had to recompute a step. For demonstration purposes only
+    n_rejected = 0
+
+    # Loop until we reach the final time
     while t[end] < T
-        y1,y2 = step(f,y[end],Δt)
-        q = (τ / norm(y1 - y2))^(1/p)
-        if q >= 1
+
+        # Compute Runge-Kutta solutions with the trial step size
+        ŷ,ŷref = step(f,y[end],Δt)
+
+        # Estimate what the optimal step size would have been
+        Δt_opt = (τ * Δt^p / norm(ŷ - ŷref))^(1/(p-1))
+
+        # Check if trial step size was small enough
+        if Δt <= Δt_opt
+            # If so, add the trial step to the trajectory
             push!(t,t[end]+Δt)
-            push!(y,y2)
+            push!(y,ŷref)
         else
             n_rejected += 1
         end
-        Δt = min(0.9*q*Δt, T-t[end])
+
+        # Update the trial step size
+        Δt = min(0.9*Δt_opt, T-t[end])
     end
 
     return t,y, n_rejected
 end
 
-function adaptive_rk_example_1()
+function step_example()
     f = y->cos(y)^2
     y0 = -1.56
     T = 200
-    τ = 1e-3
+    τ = 1e-4
 
     t,y,n_rejected = propagate_adaptively(f,y0,T,τ, embedded_ET_step, 2)
 
@@ -164,14 +176,14 @@ function adaptive_rk_example_1()
     println("  # rejected steps: ", n_rejected)
 
     clf()
-    plot(t, zero.(t), "ko", ms=3, label=L"t_k")
+    plot(t, zero.(t), "ko", ms=2, label=L"t_k")
     plot(t,y, "-", label=L"y(t)")
     xlabel(L"t")
     legend(frameon=false)
     display(gcf())
 end
 
-function adaptive_rk_example_2()
+function decay_example()
     f = y->-y
     y0 = 1.0
     T = 50
@@ -198,7 +210,7 @@ end
 function stepsize()
     f = y->-y
     y0 = 1.0
-    T = 50
+    T = 140
     τ = 1e-6
 
     if (explicit = true)
@@ -208,12 +220,10 @@ function stepsize()
     end
 
     clf()
-    if (show_ref = false)
-        semilogy([t[1],t[end]],[2,2], "k", lw=0.5)
-    end
     semilogy(t[2:end],diff(t))
+    semilogy([t[1],t[end]],[2,2], "k", lw=0.5, label=L"\Delta t = 2")
     xlabel(L"t")
-    ylabel(L"t_k - t_{k-1}")
+    ylabel(L"step size $\Delta t$")
     display(gcf())
 end
 
@@ -242,20 +252,28 @@ function embedded_implicit_ET_step(f,y0,t)
     return y_quasi_euler, y_trapezoidal
 end
 
-
 function stability_example()
     f = y->-y
     y0 = 1.0
-    if (explicit = true)
+
+    explicit = true
+    euler = true
+    if explicit
         T = 10
-        Δt = 1.2:0.2:2.2
-        step = euler_step
-        # step = trapezoidal_step
+        Δt = (1.8,2.0,2.2)
+        if euler
+            step = euler_step
+        else
+            step = trapezoidal_step
+        end
     else
         T = 50
         Δt = 1:5
-        step = implicit_euler_step
-        # step = implicit_trapezoidal_step
+        if euler
+            step = implicit_euler_step
+        else
+            step = implicit_trapezoidal_step
+        end
     end
 
     clf()
