@@ -7,7 +7,7 @@ function euler_step(f,y0,t)
     return y0 + f(y0)*t
 end
 
-function integrate(f,y0,T,n,step)
+function propagate(f,y0,T,n,step)
     y = Vector{typeof(y0)}(undef,n)
     y[1] = y0
     for i = 2:n
@@ -34,7 +34,7 @@ function cannonball_trajectory()
     step = euler_step
 
     # Solve the ODE
-    y = integrate(
+    y = propagate(
         y->cannonball_f(y,D,g),
         y0, T, n, step
     )
@@ -84,7 +84,7 @@ function convergence()
         ("SSPRK3", ssprk3_step),
     )
         error = [begin
-            ỹ = integrate(f,y0,T,n, step)
+            ỹ = propagate(f,y0,T,n, step)
             abs(y(T) - ỹ[end])
         end for n in n]
         loglog(n, error, label=name)
