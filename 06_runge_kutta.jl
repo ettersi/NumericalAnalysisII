@@ -59,10 +59,12 @@ function convergence()
     y = t -> exp(-t)
 
     clf()
-    for (i,(name,step,p,c)) in enumerate((
-        ("Euler", euler_step, 1, 3e-1),
-        # ("trapezoidal", trapezoidal_step, 2, 2e-1),
-        # ("RK4", rk4_step, 4, 3e-1),
+    for (i,(name,step,p)) in enumerate((
+        ("Euler", euler_step, 1),
+        # ("trapezoidal", trapezoidal_step, 2),
+        # ("RK4", rk4_step, 4),
+        # ("implicit Euler", implicit_euler_step, 1),
+        # ("implicit trapezoidal", implicit_trapezoidal_step, 2),
     ))
         n = round.(Int, 10.0.^LinRange(0.0,log10(1e3/p),30))
         error = [begin
@@ -71,7 +73,7 @@ function convergence()
         end for n in n]
         loglog(p.*n, error, label=name)
         nn = (4e1,1e3)
-        loglog(nn, c.*inv.(nn).^p, "C$(i-1)--", label=latexstring("O(n^{-$p})"))
+        loglog(nn, 2e-1.*inv.(nn).^p, "C$(i-1)--", label=latexstring("O(n^{-$p})"))
     end
     legend(frameon=false)
     xlabel("# function evaluations")
@@ -213,7 +215,7 @@ function stepsize()
     T = 140
     τ = 1e-6
 
-    if (explicit = true)
+    if (explicit = false)
         t,y,_ = propagate_adaptively(f,y0,T,τ, embedded_ET_step, 2)
     else
         t,y,_ = propagate_adaptively(f,y0,T,τ, embedded_implicit_ET_step, 2)
@@ -255,11 +257,11 @@ end
 function stability_example()
     f = y->-y
     y0 = 1.0
+    T = 10
 
     explicit = true
     euler = true
     if explicit
-        T = 10
         Δt = (1.8,2.0,2.2)
         if euler
             step = euler_step
@@ -267,7 +269,6 @@ function stability_example()
             step = trapezoidal_step
         end
     else
-        T = 50
         Δt = 1:5
         if euler
             step = implicit_euler_step
