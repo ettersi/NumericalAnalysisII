@@ -101,7 +101,7 @@ function simulate()
     pygui(true)
 
     # Physical parameters
-    n = 3  # Number of atoms per dimension>
+    n = 3  # Number of atoms per dimension
     L = 5*n  # Sidelength of simulation box
     E = 2n^2 * 1.0  # Initial kinetic energy
              # 0.0 -> solid
