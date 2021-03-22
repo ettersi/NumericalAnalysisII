@@ -215,7 +215,7 @@ function stepsize()
     T = 140
     τ = 1e-6
 
-    if (explicit = false)
+    if (explicit = true)
         t,y,_ = propagate_adaptively(f,y0,T,τ, embedded_ET_step, 2)
     else
         t,y,_ = propagate_adaptively(f,y0,T,τ, embedded_implicit_ET_step, 2)
@@ -259,23 +259,13 @@ function stability_example()
     y0 = 1.0
     T = 10
 
-    explicit = true
-    euler = true
-    if explicit
-        Δt = (1.8,2.0,2.2)
-        if euler
-            step = euler_step
-        else
-            step = trapezoidal_step
-        end
-    else
-        Δt = 1:5
-        if euler
-            step = implicit_euler_step
-        else
-            step = implicit_trapezoidal_step
-        end
-    end
+    Δt = (1.8,2.0,2.2)
+    step = euler_step
+    # step = trapezoidal_step
+
+    # Δt = 1:5
+    # step = implicit_euler_step
+    # step = implicit_trapezoidal_step
 
     clf()
     t = LinRange(0,T,1000)
