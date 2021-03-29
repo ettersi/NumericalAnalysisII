@@ -185,7 +185,7 @@ function integral_via_monte_carlo()
     clf()
     title("Monte Carlo sampling")
     for d in d
-        loglog(N, [abs(I^d - monte_carlo(f,d,N))/I^d for N in N], label="d = $d")
+        loglog(N, [abs(I^d - monte_carlo_integral(f,d,N))/I^d for N in N], label="d = $d")
     end
     NN = (1e2,N[end])
     loglog(NN, 6e0.*sqrt.(inv.(NN)), "k--", label=L"O(N^{-0.5})")
