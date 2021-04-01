@@ -1,8 +1,8 @@
 using PyPlot
 using SpecialFunctions
 using StaticArrays
-using Statistics
 using Printf
+using Distributions
 
 
 ###############################################################################
@@ -173,8 +173,6 @@ function midpoint_nested(f,n,nn)
     return q/n^length(nn)
 end
 
-
-
 function integral_via_monte_carlo()
     d = (2,4,8,16)
     N = round.(Int, 2.0.^LinRange(0,16,101))
@@ -213,3 +211,100 @@ function monte_carlo_integral(f,::Val{d},N) where {d}
     return q/N
 end
 
+
+
+###############################################################################
+# Random number generation
+
+using BenchmarkTools
+using Random
+
+function rng_benchmark()
+    println("Pseudo-random number generator:")
+    @btime rand(MersenneTwister())
+    println()
+    println("True random number generator:")
+    @btime rand(RandomDevice())
+end
+
+function inverse_transform()
+    U = rand(10_000)
+    X = sqrt.(U)
+
+    clf()
+    hist(X; bins = 100, density = true, label="empirical PDF")
+    xx = LinRange(0,1,1000)
+    plot(xx, 2xx, "k", label="theoretical PDF")
+    xlabel(L"x")
+    legend()
+    display(gcf())
+end
+
+function bernoulli()
+    p = 0.3
+    U = rand(10_000)
+    X = U .>= (1-p)
+
+    println("Theoretical P(X = 1): ", p)
+    println("  Empirical P(X = 1): ", mean(x))
+end
+
+function rejection_sampling()
+    # Target distribution
+    p = x -> ifelse(0 <= x <= 1, 2x, 0.0)
+    # p = x -> ifelse(0 <= x <= 1, 6*x*(1-x), 0.0)
+    # p = x -> pdf(Normal(0.5,0.1),x)
+
+    # Proposal distribution
+    DQ = Uniform(0,1)
+    # DQ = Normal(0.5,0.25)
+    q = x -> pdf(DQ,x)
+
+    # Compute `M` such that `p(x) ≤ M*q(x)`
+    x = rand(DQ,1_000_000)
+    M = maximum(p.(x)./q.(x))
+
+    # Log of proposals. For demonstration only
+    Qlog = Float64[]
+
+    # Do the rejection sampling
+    function sample()
+        while true
+            Q = rand(DQ)
+            push!(Qlog,Q)
+            if rand() <= p(Q)/(M*q(Q))
+                return Q
+            end
+        end
+    end
+    t = @elapsed X = [sample() for k = 1:10_000]
+
+    println("Runtime: ", round(t, digits=4), " seconds")
+    println()
+    println("# proposals per until acceptance:")
+    println("  Theoretical: ", M)
+    println("    Empirical: ", length(Qlog)/length(X))
+
+    clf()
+
+    # Plot empirical PDF
+    q̃,x = hist(Qlog; bins = 100, density = true, color="white");
+    bar(x[1:end-1],M*q̃, diff(x), align="edge", color="C4", alpha=0.5, label="proposal PDF")
+    hist(X; bins = 100, density = true, label="empirical PDF")
+
+    # Plot theoretical PDF
+    xx = LinRange(0,1,1000)
+    plot(xx, p.(xx), "k", label="theoretical PDF")
+
+    xlabel(L"x")
+    legend()
+    display(gcf())
+end
+
+function importance_sampling()
+    Y = rand(10_000)
+    E_X = mean(2.0.*Y.^2)
+
+    println("    Exact expectation: ", 2/3)
+    println("Estimated expectation: ", E_X)
+end
