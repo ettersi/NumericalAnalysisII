@@ -221,10 +221,12 @@ using Random
 
 function rng_benchmark()
     println("Pseudo-random number generator:")
-    @btime rand(MersenneTwister())
+    rng = MersenneTwister()
+    @btime rand($rng)
     println()
     println("True random number generator:")
-    @btime rand(RandomDevice())
+    rng = RandomDevice()
+    @btime rand($rng)
 end
 
 function inverse_transform()
@@ -246,7 +248,7 @@ function bernoulli()
     X = U .>= (1-p)
 
     println("Theoretical P(X = 1): ", p)
-    println("  Empirical P(X = 1): ", mean(x))
+    println("  Empirical P(X = 1): ", mean(X))
 end
 
 function rejection_sampling()
