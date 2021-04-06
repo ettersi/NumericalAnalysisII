@@ -283,7 +283,7 @@ function rejection_sampling()
 
     println("Runtime: ", round(t, digits=4), " seconds")
     println()
-    println("# proposals per until acceptance:")
+    println("# proposals until acceptance:")
     println("  Theoretical: ", M)
     println("    Empirical: ", length(Qlog)/length(X))
 
@@ -291,15 +291,15 @@ function rejection_sampling()
 
     # Plot empirical PDF
     q̃,x = hist(Qlog; bins = 100, density = true, color="white");
-    bar(x[1:end-1],M*q̃, diff(x), align="edge", color="C4", alpha=0.5, label="proposal PDF")
-    hist(X; bins = 100, density = true, label="empirical PDF")
+    bar(x[1:end-1],M*q̃, diff(x), align="edge", color="C4", alpha=0.5, label="empirical proposal PDF")
+    hist(X; bins = 100, density = true, label="empirical target PDF")
 
     # Plot theoretical PDF
     xx = LinRange(0,1,1000)
     plot(xx, p.(xx), "k", label="theoretical PDF")
 
     xlabel(L"x")
-    legend()
+    legend(frameon=false, bbox_to_anchor=(1.0,0.5), loc="center left")
     display(gcf())
 end
 
