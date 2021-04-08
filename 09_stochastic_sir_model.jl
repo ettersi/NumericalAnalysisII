@@ -44,6 +44,7 @@ function plot_dSIR()
     plot(t,R, "C2-", label="recovered")
 
     legend()
+    xlim([0,T])
     ylim([0,N])
     xlabel("time")
     display(gcf())
@@ -97,7 +98,7 @@ function solve_sSIR(N,I0,a,b,T)
 end
 
 function plot_sSIR()
-    if (regime = false)
+    if (regime = true)
         N = 1000
         I0 = round(Int, 0.01*N)
         a = 2
@@ -105,7 +106,7 @@ function plot_sSIR()
         T = 15.0
         ylims = [0,N]
     else
-        Random.seed!(1)
+        # Random.seed!(1)
         N = 1_000_000
         I0 = 10
         a = 1
@@ -168,7 +169,7 @@ function max_I_distribution()
 
     clf()
     plot(1:length(p_dir),p_dir, "C0")
-    if (errors = true)
+    if (errors = false)
         e = @. 3 * sqrt( p_dir * (1-p_dir) / n )
         fill_between(1:I_cut, p_dir.-e, p_dir.+e, color="C0", alpha=0.5)
     end
@@ -216,11 +217,11 @@ function solve_isSIR(N,I0,a,b,p_floor,T)
         if S > 0
             # If the current probability budget allows it...
             q = 0.5
-            if p*min(A/q,B/(1-q))/(A+B) > p_floor
+            if p * min( A/q, B/(1-q) ) / (A+B) > p_floor
                 # ... pick an event type at random and update the
                 # probability score using the importance sampling formula
                 infect = rand() < q
-                p *= ifelse(infect,A,B)/(A+B)
+                p *= ifelse( infect, A/q, B/(1-q) ) / (A+B)
             else
                 # Otherwise, follow the natural dynamics so we do not lose any
                 # further probability mass
@@ -261,7 +262,7 @@ function plot_isSIR()
     I0 = 10
     a = 1
     b = 1.1
-    T = 15.0
+    T = 50.0
 
     # Numerical parameters
     p_floor = 1e-3
@@ -303,6 +304,7 @@ function max_I_distribution_with_bias()
     # Numerical parameters
     n = 10_000
     I_cut = 80
+    ylims = [1e-5,1]
     p_floor = 0.1
 
     # Play out many epidemics and keep counts of the outcomes
@@ -326,17 +328,16 @@ function max_I_distribution_with_bias()
             p2_imp[max_I] += p[end]^2/n
         end
     end
-    @show sum(psums)/n
 
     clf()
 
-    plot(1:I_cut),p_dir, "C0")
+    plot(1:I_cut,p_dir, "C0")
     e = @. 3 * sqrt( p_dir * (1-p_dir) / n )
     fill_between(1:I_cut, p_dir.-e, p_dir.+e, color="C0", alpha=0.5)
 
-    plot(1:I_cut),p_imp, "C1")
+    plot(1:I_cut,p_imp, "C1")
     e = @. 3 * sqrt( (p2_imp - p_imp^2) / n )
-    fill_between(1:I_cut), p.-e, p.+e, color="C1", alpha=0.5)
+    fill_between(1:I_cut, p_imp.-e, p_imp.+e, color="C1", alpha=0.5)
     yscale("log")
     xlabel("[max I]")
     ylabel("P([max I])")
@@ -363,8 +364,8 @@ function exp_sampling()
 end
 
 function exp_benchmark()
-    println("Runtime log(1-rand())")
-    @btime log(1-rand())
+    println("Runtime -log(1-rand())")
+    @btime -log(1-rand())
     println()
     println("Runtime randexp()")
     @btime randexp()
