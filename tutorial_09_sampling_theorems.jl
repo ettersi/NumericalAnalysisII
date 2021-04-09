@@ -82,12 +82,12 @@ function comparison()
 
     ##########
     # Runtime
-    t_dir = @elapsed rand_quad()
-    t_imp = @elapsed (Y = rand_sin(); Y * quad_pdf(Y) / sin_pdf(Y) )
+    t_dir = @belapsed(rand_quad(), seconds=0.1)
+    t_imp = @belapsed((Y = rand_sin(); Y * quad_pdf(Y) / sin_pdf(Y)), seconds=0.1)
 
     println("Runtime per sample:")
-    @printf("       Direct sampling: %4.0f nanoseconds\n", 1e9*t_dir)
-    @printf("   Importance sampling: %4.0f nanoseconds\n", 1e9*t_imp)
+    @printf("       Direct sampling: %2.0f nanoseconds\n", 1e9*t_dir)
+    @printf("   Importance sampling: %2.0f nanoseconds\n", 1e9*t_imp)
     println()
 
     #############
