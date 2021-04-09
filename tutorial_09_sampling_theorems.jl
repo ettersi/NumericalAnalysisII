@@ -2,7 +2,6 @@ using PyPlot
 using Statistics
 using Printf
 using BenchmarkTools
-BenchmarkTools.DEFAULT_PARAMETERS.seconds = 1.0
 
 sin_pdf(x) = π/2*sin(π*x)
 quad_pdf(x) = 6*x*(1-x)
@@ -17,6 +16,25 @@ rand_quad(n) = [rand_quad() for i = 1:n]
 function rand_quad()
     # TODO: Your code here!
     return NaN
+end
+
+function plot_pdfs()
+    x = LinRange(0,1,1000)
+    clf()
+    plot(x, quad_pdf.(x), label=L"p(x)")
+    plot(x, sin_pdf.(x), label=L"q(x)")
+    xlabel("x")
+    legend()
+    display(gcf())
+end
+
+function plot_pdf_ratio()
+    x = LinRange(0,1,1000)[2:end-1]
+    clf()
+    plot(x, quad_pdf.(x)./sin_pdf.(x), label=L"p(x) / q(x)")
+    xlabel("x")
+    legend()
+    display(gcf())
 end
 
 function histogram(rand_fun)
